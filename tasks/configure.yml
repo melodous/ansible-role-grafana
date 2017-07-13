@@ -1,0 +1,67 @@
+---
+- name: Create group
+  shell: groupadd -o -g {{ grafana_group_id }} {{ grafana_group }}
+  ignore_errors: true
+
+- name: Create user
+  user: name={{ grafana_user }} uid={{ grafana_user_id }} group={{ grafana_group }} non_unique=true
+
+#Create required directories
+- name: Create Directories
+  file: path={{ item }} state=directory owner={{ grafana_user }} group={{ grafana_group }}
+  with_items:
+    - /var/lib/grafana/data
+    - /var/lib/grafana/dashboard
+    - /etc/grafana
+    - /var/log/grafana
+
+- name: Copy config files
+  copy: src={{ item }} dest=/etc/grafana/{{ item }} owner={{ grafana_user }} group={{ grafana_group }}
+  with_items:
+    - ldap.toml
+    - grafana.ini
+
+- name: Pull grafana image
+  shell: docker pull "{{ grafana_docker_image }}:{{ grafana_version }}"
+  register: result_docker
+  changed_when: False
+  until: result_docker|success
+  retries: 3
+  delay: 1
+  tags: update
+
+- name: Start grafana containers
+  docker_container:
+    name: grafana
+    image: "{{ grafana_docker_image }}:{{ grafana_version }}"
+    network_mode: host
+    state: present
+    restart_policy: unless-stopped
+    restart_retries: 3
+    log_driver: json-file
+    log_options:
+      max-file: "1"
+      max-size: "20m"
+    labels: "{{ grafana_docker_labels }}"
+    volumes:
+      - /var/lib/grafana/data:/var/lib/grafana/data
+      - /var/lib/grafana/dashboard:/var/lib/grafana/dashboard
+      - /etc/grafana:/etc/grafana
+      - /var/log/grafana:/var/log/grafana
+      - /etc/hosts:/etc/hosts
+      - /etc/localtime:/etc/localtime
+
+- name: Create init-script rhel6
+  copy: src=grafana_rhel6 dest=/etc/init.d/grafana owner=root group=root mode=0755
+  when:
+    ansible_distribution_major_version|int < 7
+    and ansible_os_family == 'RedHat'
+
+- name: Create init-script rhel7
+  copy: src=grafana_rhel7 dest=/usr/lib/systemd/system/grafana.service owner=root group=root mode=0644
+  when:
+    ansible_distribution_major_version|int > 6
+    and ansible_os_family == 'RedHat'
+
+- name: Enable init-scripts
+  service: name=grafana enabled=yes state=started

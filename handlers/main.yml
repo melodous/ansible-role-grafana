@@ -1,0 +1,5 @@
+---
+# handlers file for .
+# Restart service and ensure it is enabled
+- name: restart grafana
+  service: name=grafana state=restarted enabled=yes
