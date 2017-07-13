@@ -2,6 +2,8 @@
 - name: Create group
   shell: groupadd -o -g {{ grafana_group_id }} {{ grafana_group }}
   ignore_errors: true
+  tags:
+    - skip_ansible_lint
 
 - name: Create user
   user: name={{ grafana_user }} uid={{ grafana_user_id }} group={{ grafana_group }} non_unique=true
@@ -28,7 +30,9 @@
   until: result_docker|success
   retries: 3
   delay: 1
-  tags: update
+  tags:
+    - update
+    - skip_ansible_lint
 
 - name: Start grafana containers
   docker_container:
