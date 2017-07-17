@@ -105,6 +105,12 @@ changelog.
 
 -   First change
 
+### grafana v0.0.2 - 2017/07/17
+
+##### Changed
+
+-   Fixed playbook.yml
+
 ### grafana v0.0.1 - 2017/07/13
 
 ##### Added
