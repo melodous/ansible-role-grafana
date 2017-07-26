@@ -17,22 +17,23 @@
     - /etc/grafana
     - /var/log/grafana
 
-- name: Copy config files
-  copy: src={{ item }} dest=/etc/grafana/{{ item }} owner={{ grafana_user }} group={{ grafana_group }}
-  with_items:
-    - ldap.toml
-    - grafana.ini
+- name: deliver configuration
+  template: src=grafana.ini.j2
+            dest=/etc/grafana/grafana.ini
+            owner={{ grafana_user }}
+            group={{ grafana_group }}
+            mode=0640
+  notify: restart grafana
 
-- name: Pull grafana image
-  shell: docker pull "{{ grafana_docker_image }}:{{ grafana_version }}"
-  register: result_docker
-  changed_when: False
-  until: result_docker|success
-  retries: 3
-  delay: 1
-  tags:
-    - update
-    - skip_ansible_lint
+
+- name: deliver ldap configuration
+  template: src=ldap.toml.j2
+            dest=/etc/grfana/ldap.toml
+            owner={{ grafana_user }}
+            group={{ grafana_group }}
+            mode=0640
+  when: grafana.service.options.auth.ldap.enabled
+  notify: restart grafana
 
 - name: Start grafana containers
   docker_container:
