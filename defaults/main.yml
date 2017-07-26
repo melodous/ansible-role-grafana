@@ -115,7 +115,9 @@ grafana:
       session: {}
 
       # Server reporting, sends usage counters to stats.grafana.org every 24 hours. Icludes Google analytics
-      analytics: {}
+      analytics:
+        reporting_enabled: false
+        check_for_updates: false
 
       # Secutiry settings: default admin user account and its parameters
       security: {}

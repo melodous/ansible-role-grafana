@@ -28,7 +28,7 @@
 
 - name: deliver ldap configuration
   template: src=ldap.toml.j2
-            dest=/etc/grfana/ldap.toml
+            dest=/etc/grafana/ldap.toml
             owner={{ grafana_user }}
             group={{ grafana_group }}
             mode=0640
