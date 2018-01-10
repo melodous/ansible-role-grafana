@@ -22,7 +22,7 @@ grafana_docker_image: melodous/grafana
 #
 #    grafana docker image version (TAG)
 #
-grafana_version: 4.3.2
+grafana_version: 4.4.3
 #
 # ]]]
 
@@ -100,6 +100,7 @@ grafana:
       paths:
         data: "/var/lib/grafana"
         logs: "/var/log/grafana"
+        plugins: "/var/lib/grafana_plugins"
 
       # Server configuration
       server:

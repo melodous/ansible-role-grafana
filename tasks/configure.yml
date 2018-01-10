@@ -12,8 +12,7 @@
 - name: Create Directories
   file: path={{ item }} state=directory owner={{ grafana_user }} group={{ grafana_group }}
   with_items:
-    - /var/lib/grafana/data
-    - /var/lib/grafana/dashboard
+    - /var/lib/grafana
     - /etc/grafana
     - /var/log/grafana
 
@@ -49,8 +48,7 @@
       max-size: "20m"
     labels: "{{ grafana_docker_labels }}"
     volumes:
-      - /var/lib/grafana/data:/var/lib/grafana/data
-      - /var/lib/grafana/dashboard:/var/lib/grafana/dashboard
+      - /var/lib/grafana:/var/lib/grafana
       - /etc/grafana:/etc/grafana
       - /var/log/grafana:/var/log/grafana
       - /etc/hosts:/etc/hosts
